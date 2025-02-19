@@ -11,6 +11,7 @@ class MonSmsProAuth extends StatefulWidget {
   final int otpLength;
   final Color mainColor;
   final Color buttonTextColor;
+  final BorderRadius buttonRadius;
 
   const MonSmsProAuth({
     super.key,
@@ -21,6 +22,7 @@ class MonSmsProAuth extends StatefulWidget {
     this.otpLength = 4,
     this.mainColor = Colors.black,
     this.buttonTextColor = Colors.white,
+    this.buttonRadius = const BorderRadius.all(Radius.circular(15)),
   });
 
   @override
@@ -147,7 +149,7 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
                 fixedSize: Size.fromHeight(50),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: widget.buttonRadius,
                 ),
               ),
               onPressed: loading
@@ -176,9 +178,10 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
                                   mainColor: widget.mainColor,
                                   buttonTextColor: widget.buttonTextColor,
                                   sms: _sms,
-                                  token: _token!,
+                                  token: _token ?? "",
                                   phoneNumber: phoneNumber!.international,
                                   retry: _sendOTP,
+                                  buttonRadius: widget.buttonRadius,
                                 ),
                               );
                             },

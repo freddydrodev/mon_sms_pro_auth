@@ -13,6 +13,7 @@ class OTPView extends StatefulWidget {
   final String token;
   final String phoneNumber;
   final Future Function() retry;
+  final BorderRadius buttonRadius;
 
   const OTPView({
     super.key,
@@ -24,6 +25,7 @@ class OTPView extends StatefulWidget {
     required this.token,
     required this.phoneNumber,
     required this.retry,
+    required this.buttonRadius,
   });
 
   @override
@@ -49,7 +51,7 @@ class OTPViewState extends State<OTPView> {
     _streamDuration = StreamDuration(
       config: StreamDurationConfig(
           countDownConfig: CountDownConfig(
-            duration: Duration(minutes: 1),
+            duration: Duration(seconds: 60),
           ),
           onDone: () {
             setState(() {
@@ -197,67 +199,70 @@ class OTPViewState extends State<OTPView> {
             onCompleted: (pin) async => await verify(),
           ),
           SizedBox(height: 10),
-          if (!_canRetry)
-            Center(
-              child: SlideCountdown(
-                streamDuration: _streamDuration,
-                duration: Duration(minutes: 1),
-                shouldShowMinutes: (p) => true,
-                shouldShowSeconds: (p) => true,
-                decoration: const BoxDecoration(),
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+          Center(
+            child: SlideCountdown(
+              replacement: RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  text: "Vous n'avez pas reçu de code ? ",
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontSize: 14,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: "Envoyer un nouveau code.",
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = _canRetry
+                            ? () async {
+                                setState(() => loading = true);
+
+                                await widget.retry();
+                                setState(() => loading = false);
+
+                                _streamDuration.add(
+                                  const Duration(seconds: 60),
+                                );
+
+                                _streamDuration.play();
+
+                                setState(() {
+                                  _canRetry = false;
+                                });
+                              }
+                            : null,
+                      style: TextStyle(
+                        color: _canRetry ? widget.mainColor : Colors.black26,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        decoration: _canRetry
+                            ? TextDecoration.underline
+                            : TextDecoration.none,
+                      ),
+                    ),
+                  ],
                 ),
-                separatorStyle: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 14,
-                ),
-                onDone: () {
-                  print('ok');
-                  setState(() {
-                    _canRetry = true;
-                  });
-                },
               ),
-            ),
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              text: "Vous n'avez pas reçu de code ? ",
+              streamDuration: _streamDuration,
+              duration: Duration(minutes: 1),
+              shouldShowMinutes: (p) => true,
+              shouldShowSeconds: (p) => true,
+              decoration: const BoxDecoration(),
               style: TextStyle(
                 color: Colors.black87,
                 fontSize: 14,
+                fontWeight: FontWeight.bold,
               ),
-              children: [
-                TextSpan(
-                  text: "Envoyer un nouveau code.",
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = _canRetry
-                        ? () async {
-                            setState(() => loading = true);
-
-                            await widget.retry();
-                            setState(() => loading = false);
-                            _streamDuration.add(
-                              const Duration(minutes: 1),
-                            );
-                            setState(() {
-                              _canRetry = false;
-                            });
-                          }
-                        : null,
-                  style: TextStyle(
-                    color: _canRetry ? widget.mainColor : Colors.black26,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    decoration: _canRetry
-                        ? TextDecoration.underline
-                        : TextDecoration.none,
-                  ),
-                ),
-              ],
+              separatorStyle: TextStyle(
+                color: Colors.black87,
+                fontSize: 14,
+              ),
+              onDone: () {
+                print('ok');
+                setState(() {
+                  _canRetry = true;
+                });
+              },
             ),
           ),
           SizedBox(height: 20),
@@ -272,7 +277,7 @@ class OTPViewState extends State<OTPView> {
               fixedSize: Size.fromHeight(50),
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: widget.buttonRadius,
               ),
             ),
             onPressed: loading ? null : verify,
