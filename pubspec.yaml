@@ -1,7 +1,9 @@
 name: mon_sms_pro_auth
-description: "A new Flutter package project."
+description: "Auth screen for mon_sms_pro"
 version: 0.0.1
-homepage: "https://freddydro.dev"
+homepage: https://github.com/freddydrodev/mon_sms_pro_auth
+repository: https://github.com/freddydrodev/mon_sms_pro_auth
+issue_tracker: https://github.com/freddydrodev/mon_sms_pro_auth/issues
 
 environment:
   sdk: ^3.6.0
@@ -10,7 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  mon_sms_pro: ^0.0.3
+  mon_sms_pro: ^0.0.4
   phone_form_field: ^10.0.4
   pinput: ^5.0.1
   slide_countdown: ^2.0.2

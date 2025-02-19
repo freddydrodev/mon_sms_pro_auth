@@ -244,10 +244,10 @@ packages:
     dependency: transitive
     description:
       name: mon_sms_pro
-      sha256: cd5810c36acc30962ee72b0dcc0b71407ec4aeaf43f6fc27663b87f2bd1c9de2
+      sha256: "9a0fa1adf29d20202614842bb1b570297e193a2ec9dd7ba984d2625bb023b3b2"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.3"
+    version: "0.0.4"
   mon_sms_pro_auth:
     dependency: "direct main"
     description:
