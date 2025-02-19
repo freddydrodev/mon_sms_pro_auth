@@ -57,6 +57,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.0"
+  crypto:
+    dependency: transitive
+    description:
+      name: crypto
+      sha256: "1e445881f28f22d6140f181e07737b22f1e099a5e1ff94b0af2f9e4a463f4855"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.6"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -73,6 +81,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.6"
+  dio:
+    dependency: transitive
+    description:
+      name: dio
+      sha256: "253a18bbd4851fecba42f7343a1df3a9a4c1d31a2c1b37e221086b4fa8c8dbc9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.8.0+1"
+  dio_web_adapter:
+    dependency: transitive
+    description:
+      name: dio_web_adapter
+      sha256: e485c7a39ff2b384fa1d7e09b4e25f755804de8384358049124830b04fc4f93a
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   fake_async:
     dependency: transitive
     description:
@@ -94,6 +118,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.14"
+  flutter_dotenv:
+    dependency: "direct main"
+    description:
+      name: flutter_dotenv
+      sha256: b7c7be5cd9f6ef7a78429cabd2774d3c4af50e79cb2b7593e3d5d763ef95c61b
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.2.1"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -120,6 +152,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  hive:
+    dependency: transitive
+    description:
+      name: hive
+      sha256: "8dcf6db979d7933da8217edcec84e9df1bdb4e4edc7fc77dbd5aa74356d6d941"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.3"
   http:
     dependency: transitive
     description:
@@ -200,6 +240,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.15.0"
+  mon_sms_pro:
+    dependency: transitive
+    description:
+      name: mon_sms_pro
+      sha256: cd5810c36acc30962ee72b0dcc0b71407ec4aeaf43f6fc27663b87f2bd1c9de2
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   mon_sms_pro_auth:
     dependency: "direct main"
     description:
@@ -223,6 +271,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  pausable_timer:
+    dependency: transitive
+    description:
+      name: pausable_timer
+      sha256: "6ef1a95441ec3439de6fb63f39a011b67e693198e7dae14e20675c3c00e86074"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0+3"
   petitparser:
     dependency: transitive
     description:
@@ -260,6 +316,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  slide_countdown:
+    dependency: transitive
+    description:
+      name: slide_countdown
+      sha256: "363914f96389502467d4dc9c0f26e88f93df3d8e37de2d5ff05b16d981fe973d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   source_span:
     dependency: transitive
     description:

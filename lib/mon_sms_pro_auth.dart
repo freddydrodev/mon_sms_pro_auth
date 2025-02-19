@@ -1,7 +1,7 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:mon_sms_pro_auth/views/otp_view.dart';
 import 'package:phone_form_field/phone_form_field.dart';
-import 'package:pinput/pinput.dart';
+import 'package:mon_sms_pro/mon_sms_pro.dart';
 
 class MonSmsProAuth extends StatefulWidget {
   final String apiKey;
@@ -32,12 +32,42 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
   final controller = TextEditingController();
   final focusNode = FocusNode();
   bool loading = false;
+  String? _token;
+  late MonSMSPRO _sms;
+
+  @override
+  void initState() {
+    _sms = MonSMSPRO(apiKey: widget.apiKey);
+
+    super.initState();
+  }
 
   @override
   void dispose() {
     controller.dispose();
     focusNode.dispose();
     super.dispose();
+  }
+
+  Future _sendOTP() async {
+    setState(() => loading = true);
+
+    final otp = await _sms.otp.get(
+      GetOtpPayload(
+        phoneNumber: phoneNumber!.international,
+        appName: widget.appName,
+        length: widget.otpLength,
+        senderId: widget.senderName,
+      ),
+    );
+
+    setState(() => loading = false);
+
+    if (otp != null) {
+      setState(() {
+        _token = otp.token;
+      });
+    }
   }
 
   @override
@@ -122,180 +152,48 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
               ),
               onPressed: loading
                   ? null
-                  : () {
-                      if (phoneNumber == null ||
-                          phoneNumber!.isValid() == false) {
+                  : () async {
+                      if (phoneNumber == null || !phoneNumber!.isValid()) {
                         return;
                       }
 
-                      final defaultPinTheme = PinTheme(
-                        width: 56,
-                        height: 56,
-                        textStyle: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        decoration: const BoxDecoration(),
-                      );
+                      try {
+                        await _sendOTP();
 
-                      final cursor = Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Container(
-                            width: 56,
-                            height: 3,
-                            decoration: BoxDecoration(
-                              color: widget.mainColor,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ],
-                      );
-
-                      final preFilledWidget = Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Container(
-                            width: 56,
-                            height: 3,
-                            decoration: BoxDecoration(
-                              color: Colors.black12,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ],
-                      );
-
-                      showModalBottomSheet(
-                        context: context,
-                        showDragHandle: true,
-                        useRootNavigator: true,
-                        useSafeArea: true,
-                        isScrollControlled: true,
-                        builder: (context) {
-                          return FractionallySizedBox(
-                            heightFactor: 0.87,
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                  left: 15, right: 15, bottom: 15),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Text(
-                                    "Vérification du Numéro de Téléphone",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  SizedBox(height: 10),
-                                  RichText(
-                                    textAlign: TextAlign.center,
-                                    text: TextSpan(
-                                      text:
-                                          "Nous avons envoyé un code à ${widget.otpLength} chiffres par SMS au",
-                                      style: TextStyle(
-                                        color:
-                                            Colors.black.withValues(alpha: 0.8),
-                                        fontSize: 14,
-                                      ),
-                                      children: [
-                                        TextSpan(
-                                          text:
-                                              " ${phoneNumber?.international}",
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text:
-                                              ". Veuillez le saisir ci-dessous.",
-                                          style: TextStyle(
-                                            color: Colors.black
-                                                .withValues(alpha: 0.8),
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(height: 10),
-                                  Pinput(
-                                    autofocus: true,
-                                    length: widget.otpLength,
-                                    pinAnimationType: PinAnimationType.slide,
-                                    controller: controller,
-                                    focusNode: focusNode,
-                                    defaultPinTheme: defaultPinTheme,
-                                    showCursor: true,
-                                    cursor: cursor,
-                                    preFilledWidget: preFilledWidget,
-                                    onCompleted: (pin) => debugPrint(pin),
-                                  ),
-                                  SizedBox(height: 10),
-                                  RichText(
-                                    textAlign: TextAlign.center,
-                                    text: TextSpan(
-                                      text: "Vous n'avez pas reçu de code ? ",
-                                      style: TextStyle(
-                                        color: Colors.black87,
-                                        fontSize: 14,
-                                      ),
-                                      children: [
-                                        TextSpan(
-                                          text: "Envoyer un nouveau code.",
-                                          recognizer: TapGestureRecognizer()
-                                            ..onTap = () {
-                                              debugPrint(
-                                                  "Envoyer un nouveau code.");
-                                            },
-                                          style: TextStyle(
-                                            color: widget.mainColor,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            decoration:
-                                                TextDecoration.underline,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(height: 20),
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: widget.mainColor,
-                                      foregroundColor: widget.buttonTextColor,
-                                      textStyle: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      fixedSize: Size.fromHeight(50),
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                    ),
-                                    onPressed: loading ? null : () {},
-                                    child: loading
-                                        ? SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                        : Text("Continuer"),
-                                  ),
-                                ],
-                              ),
-                            ),
+                        if (context.mounted) {
+                          final res = await showModalBottomSheet(
+                            context: context,
+                            showDragHandle: true,
+                            useRootNavigator: true,
+                            useSafeArea: true,
+                            isScrollControlled: true,
+                            builder: (context) {
+                              return FractionallySizedBox(
+                                heightFactor: 0.87,
+                                child: OTPView(
+                                  paddingSize: widget.paddingSize,
+                                  otpLength: widget.otpLength,
+                                  mainColor: widget.mainColor,
+                                  buttonTextColor: widget.buttonTextColor,
+                                  sms: _sms,
+                                  token: _token!,
+                                  phoneNumber: phoneNumber!.international,
+                                  retry: _sendOTP,
+                                ),
+                              );
+                            },
                           );
-                        },
-                      );
+
+                          if (res != null) {
+                            if (context.mounted) {
+                              Navigator.pop(context, res);
+                            }
+                          }
+                        }
+                      } catch (e) {
+                        print(e);
+                        setState(() => loading = false);
+                      }
                     },
               child: loading
                   ? SizedBox(

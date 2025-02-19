@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mon_sms_pro_auth/mon_sms_pro_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -117,20 +120,24 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final phone = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => MonSmsProAuth(
-                apiKey: "",
-                senderName: "ATALAKU PRO",
-                appName: "My new App",
+                apiKey: dotenv.env['API_KEY'] ?? "",
+                senderName: dotenv.env['SENDER_NAME'] ?? "",
+                appName: dotenv.env['APP_NAME'],
                 paddingSize: 15,
                 otpLength: 5,
                 mainColor: Theme.of(context).primaryColor,
               ),
             ),
           );
+
+          if (phone != null) {
+            print(phone);
+          }
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
