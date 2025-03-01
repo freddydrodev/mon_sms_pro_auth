@@ -10,11 +10,8 @@ class MonSmsProAuth extends StatefulWidget {
   final String apiKey;
   final String senderName;
   final String? appName;
-  // final double paddingSize;
   final int otpLength;
-  // final Color mainColor;
-  // final Color buttonTextColor;
-  // final BorderRadius buttonRadius;
+
   final MonSmsProAuthStyle style;
 
   /// For development and testing purpose only.
@@ -40,6 +37,8 @@ class MonSmsProAuth extends StatefulWidget {
 
   final String onBeforeSendOTPError;
 
+  final Function(String phoneNumber)? onCompleted;
+
   const MonSmsProAuth({
     super.key,
     required this.apiKey,
@@ -55,6 +54,7 @@ class MonSmsProAuth extends StatefulWidget {
     this.demoOTP,
     this.beforeSendOTP,
     this.onBeforeSendOTPError = 'User not found',
+    this.onCompleted,
   });
 
   @override
@@ -243,8 +243,12 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
                             );
 
                             if (res != null) {
-                              if (context.mounted) {
-                                Navigator.pop(context, res);
+                              if (widget.onCompleted != null) {
+                                widget.onCompleted!(res);
+                              } else {
+                                if (context.mounted) {
+                                  Navigator.pop(context, res);
+                                }
                               }
                             }
                           }
