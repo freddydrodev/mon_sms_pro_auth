@@ -1,0 +1,2 @@
+/Users/drofreddyjuniordiomande/.projects/libs/flutter/mon_sms_pro_auth/example/android/app/.cxx/Debug/q1j5q3oy/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/drofreddyjuniordiomande/.projects/libs/flutter/mon_sms_pro_auth/example/android/app/.cxx/Debug/q1j5q3oy/arm64-v8a/CMakeFiles/rebuild_cache.dir

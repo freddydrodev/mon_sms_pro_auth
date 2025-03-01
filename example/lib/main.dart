@@ -113,9 +113,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 apiKey: dotenv.env['API_KEY'] ?? "",
                 senderName: dotenv.env['SENDER_NAME'] ?? "",
                 appName: dotenv.env['APP_NAME'],
-                paddingSize: 15,
+                demoOTP: dotenv.env['DEMO_OTP'],
+                demoPhoneNumber: dotenv.env['DEMO_PHONE_NUMBER'],
                 otpLength: 5,
-                mainColor: Theme.of(context).primaryColor,
+                style: MonSmsProAuthStyle(
+                  paddingSize: 15,
+                  mainColor: Theme.of(context).primaryColor,
+                ),
               ),
             ),
           );

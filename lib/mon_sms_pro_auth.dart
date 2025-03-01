@@ -1,28 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:mon_sms_pro_auth/views/otp_view.dart';
+import 'package:mon_sms_pro_auth/mon_sms_pro_auth_style.dart';
+import 'package:mon_sms_pro_auth/otp_view.dart';
 import 'package:phone_form_field/phone_form_field.dart';
 import 'package:mon_sms_pro/mon_sms_pro.dart';
+
+export "mon_sms_pro_auth_style.dart";
 
 class MonSmsProAuth extends StatefulWidget {
   final String apiKey;
   final String senderName;
   final String? appName;
-  final double paddingSize;
+  // final double paddingSize;
   final int otpLength;
-  final Color mainColor;
-  final Color buttonTextColor;
-  final BorderRadius buttonRadius;
+  // final Color mainColor;
+  // final Color buttonTextColor;
+  // final BorderRadius buttonRadius;
+  final MonSmsProAuthStyle style;
+
+  /// For development and testing purpose only.
+  ///
+  /// This is usefull for Google Play or Apple App Store submission.
+  /// It does not send OTP to client but it just compare with the defined one.
+  ///
+  /// For example, you can use it to test the app with a demo phone number.
+  final String? demoPhoneNumber;
+
+  /// For development and testing purpose only.
+  ///
+  /// This is usefull for Google Play or Apple App Store submission.
+  /// It does not send OTP to client but it just compare with the defined one.
+  ///
+  /// For example, you can use it to test the app with a demo OTP.
+  final String? demoOTP;
+
+  /// This function can be use to verify if this user is from the db.
+  /// It call the beforeSendOTP and return the result.
+  /// If beforeSendOTP is null, it will return true.
+  final Future<bool> Function(String phoneNumber)? beforeSendOTP;
+
+  final String onBeforeSendOTPError;
 
   const MonSmsProAuth({
     super.key,
     required this.apiKey,
     required this.senderName,
+    this.style = const MonSmsProAuthStyle(),
     this.appName,
-    this.paddingSize = 15,
+    // this.paddingSize = 15,
     this.otpLength = 4,
-    this.mainColor = Colors.black,
-    this.buttonTextColor = Colors.white,
-    this.buttonRadius = const BorderRadius.all(Radius.circular(15)),
+    // this.mainColor = Colors.black,
+    // this.buttonTextColor = Colors.white,
+    // this.buttonRadius = const BorderRadius.all(Radius.circular(15)),
+    this.demoPhoneNumber,
+    this.demoOTP,
+    this.beforeSendOTP,
+    this.onBeforeSendOTPError = 'User not found',
   });
 
   @override
@@ -51,24 +83,47 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
     super.dispose();
   }
 
-  Future _sendOTP() async {
-    setState(() => loading = true);
+  Future<bool> _sendOTP() async {
+    try {
+      setState(() => loading = true);
 
-    final otp = await _sms.otp.get(
-      GetOtpPayload(
-        phoneNumber: phoneNumber!.international,
-        appName: widget.appName,
-        length: widget.otpLength,
-        senderId: widget.senderName,
-      ),
-    );
+      if (widget.beforeSendOTP != null) {
+        if (!(await widget.beforeSendOTP!(phoneNumber!.international))) {
+          throw widget.onBeforeSendOTPError;
+        }
+      }
 
-    setState(() => loading = false);
+      if (widget.demoPhoneNumber != null &&
+          widget.demoOTP != null &&
+          phoneNumber!.international == widget.demoPhoneNumber) {
+        setState(() {
+          _token = widget.demoOTP;
+          loading = false;
+        });
 
-    if (otp != null) {
-      setState(() {
-        _token = otp.token;
-      });
+        return true;
+      } else {
+        final otp = await _sms.otp.get(
+          GetOtpPayload(
+            phoneNumber: phoneNumber!.international,
+            appName: widget.appName,
+            length: widget.otpLength,
+            senderId: widget.senderName,
+          ),
+        );
+
+        setState(() => loading = false);
+
+        if (otp != null) setState(() => _token = otp.token);
+
+        return true;
+      }
+    } catch (e) {
+      print(e);
+
+      setState(() => loading = false);
+
+      return false;
     }
   }
 
@@ -78,9 +133,9 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
       appBar: AppBar(),
       body: Padding(
         padding: EdgeInsets.only(
-          left: widget.paddingSize,
-          right: widget.paddingSize,
-          bottom: widget.paddingSize,
+          left: widget.style.paddingSize,
+          right: widget.style.paddingSize,
+          bottom: widget.style.paddingSize,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -110,8 +165,10 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
                   context,
                   errorText: "Ce champ est réquis",
                 ),
-                PhoneValidator.validMobile(context,
-                    errorText: "Numéro non valide"),
+                PhoneValidator.validMobile(
+                  context,
+                  errorText: "Numéro non valide",
+                ),
               ]),
               countrySelectorNavigator: const CountrySelectorNavigator.page(
                 countries: [IsoCode.CI],
@@ -143,13 +200,13 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
             Expanded(child: SizedBox()),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: widget.mainColor,
-                foregroundColor: widget.buttonTextColor,
+                backgroundColor: widget.style.mainColor,
+                foregroundColor: widget.style.buttonTextColor,
                 textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 fixedSize: Size.fromHeight(50),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: widget.buttonRadius,
+                  borderRadius: widget.style.buttonRadius,
                 ),
               ),
               onPressed: loading
@@ -160,36 +217,35 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
                       }
 
                       try {
-                        await _sendOTP();
+                        if (await _sendOTP()) {
+                          if (context.mounted) {
+                            final res = await showModalBottomSheet(
+                              context: context,
+                              showDragHandle: true,
+                              useRootNavigator: true,
+                              useSafeArea: true,
+                              isScrollControlled: true,
+                              builder: (context) {
+                                return FractionallySizedBox(
+                                  heightFactor: 0.87,
+                                  child: OTPView(
+                                    style: widget.style,
+                                    otpLength: widget.otpLength,
+                                    sms: _sms,
+                                    token: _token ?? "",
+                                    phoneNumber: phoneNumber!.international,
+                                    retry: _sendOTP,
+                                    demoOTP: widget.demoOTP,
+                                    demoPhoneNumber: widget.demoPhoneNumber,
+                                  ),
+                                );
+                              },
+                            );
 
-                        if (context.mounted) {
-                          final res = await showModalBottomSheet(
-                            context: context,
-                            showDragHandle: true,
-                            useRootNavigator: true,
-                            useSafeArea: true,
-                            isScrollControlled: true,
-                            builder: (context) {
-                              return FractionallySizedBox(
-                                heightFactor: 0.87,
-                                child: OTPView(
-                                  paddingSize: widget.paddingSize,
-                                  otpLength: widget.otpLength,
-                                  mainColor: widget.mainColor,
-                                  buttonTextColor: widget.buttonTextColor,
-                                  sms: _sms,
-                                  token: _token ?? "",
-                                  phoneNumber: phoneNumber!.international,
-                                  retry: _sendOTP,
-                                  buttonRadius: widget.buttonRadius,
-                                ),
-                              );
-                            },
-                          );
-
-                          if (res != null) {
-                            if (context.mounted) {
-                              Navigator.pop(context, res);
+                            if (res != null) {
+                              if (context.mounted) {
+                                Navigator.pop(context, res);
+                              }
                             }
                           }
                         }

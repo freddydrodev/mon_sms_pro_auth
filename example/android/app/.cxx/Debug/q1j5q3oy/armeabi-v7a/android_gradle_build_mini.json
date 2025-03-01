@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/drofreddyjuniordiomande/development/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/drofreddyjuniordiomande/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/drofreddyjuniordiomande/.projects/libs/flutter/mon_sms_pro_auth/example/android/app/.cxx/Debug/q1j5q3oy/armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/drofreddyjuniordiomande/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/drofreddyjuniordiomande/.projects/libs/flutter/mon_sms_pro_auth/example/android/app/.cxx/Debug/q1j5q3oy/armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

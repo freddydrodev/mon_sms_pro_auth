@@ -1,31 +1,38 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mon_sms_pro/mon_sms_pro.dart';
+import 'package:mon_sms_pro_auth/mon_sms_pro_auth_style.dart';
 import 'package:pinput/pinput.dart';
 import 'package:slide_countdown/slide_countdown.dart';
 
 class OTPView extends StatefulWidget {
-  final double paddingSize;
+  // final double paddingSize;
   final int otpLength;
-  final Color mainColor;
-  final Color buttonTextColor;
+  // final Color mainColor;
+  // final Color buttonTextColor;
   final MonSMSPRO sms;
   final String token;
   final String phoneNumber;
   final Future Function() retry;
-  final BorderRadius buttonRadius;
+  // final BorderRadius buttonRadius;
+  final String? demoPhoneNumber;
+  final String? demoOTP;
+  final MonSmsProAuthStyle style;
 
   const OTPView({
     super.key,
-    required this.paddingSize,
+    // required this.paddingSize,
     required this.otpLength,
-    required this.mainColor,
-    required this.buttonTextColor,
+    // required this.mainColor,
+    // required this.buttonTextColor,
     required this.sms,
     required this.token,
     required this.phoneNumber,
     required this.retry,
-    required this.buttonRadius,
+    // required this.buttonRadius,
+    required this.style,
+    this.demoPhoneNumber,
+    this.demoOTP,
   });
 
   @override
@@ -39,8 +46,6 @@ class OTPViewState extends State<OTPView> {
 
   final _focusNode = FocusNode();
 
-  // Duration duration = Duration(minutes: 1);
-
   bool _canRetry = false;
 
   late final StreamDuration _streamDuration;
@@ -48,16 +53,18 @@ class OTPViewState extends State<OTPView> {
   @override
   void initState() {
     super.initState();
+
     _streamDuration = StreamDuration(
       config: StreamDurationConfig(
-          countDownConfig: CountDownConfig(
-            duration: Duration(seconds: 60),
-          ),
-          onDone: () {
-            setState(() {
-              _canRetry = true;
-            });
-          }),
+        countDownConfig: CountDownConfig(
+          duration: Duration(seconds: 60),
+        ),
+        onDone: () {
+          setState(() {
+            _canRetry = true;
+          });
+        },
+      ),
     );
   }
 
@@ -72,33 +79,43 @@ class OTPViewState extends State<OTPView> {
       return;
     }
 
-    try {
-      setState(
-        () => loading = true,
+    if (widget.demoPhoneNumber != null &&
+        widget.demoOTP != null &&
+        widget.phoneNumber == widget.demoPhoneNumber &&
+        _controller.text == widget.demoOTP) {
+      Navigator.pop(
+        context,
+        widget.phoneNumber,
       );
-
-      final OTPModel res = await widget.sms.otp.verify(
-        VerifyOtpPayload(
-          phoneNumber: widget.phoneNumber,
-          token: widget.token,
-          otp: _controller.text,
-        ),
-      );
-
-      setState(
-        () => loading = false,
-      );
-
-      if (mounted) {
-        Navigator.pop(
-          context,
-          res.phoneNumber,
+    } else {
+      try {
+        setState(
+          () => loading = true,
         );
+
+        final OTPModel res = await widget.sms.otp.verify(
+          VerifyOtpPayload(
+            phoneNumber: widget.phoneNumber,
+            token: widget.token,
+            otp: _controller.text,
+          ),
+        );
+
+        setState(
+          () => loading = false,
+        );
+
+        if (mounted) {
+          Navigator.pop(
+            context,
+            res.phoneNumber,
+          );
+        }
+      } catch (e) {
+        setState(() {
+          loading = false;
+        });
       }
-    } catch (e) {
-      setState(() {
-        loading = false;
-      });
     }
   }
 
@@ -121,7 +138,7 @@ class OTPViewState extends State<OTPView> {
           width: 56,
           height: 3,
           decoration: BoxDecoration(
-            color: widget.mainColor,
+            color: widget.style.mainColor,
             borderRadius: BorderRadius.circular(8),
           ),
         ),
@@ -232,7 +249,8 @@ class OTPViewState extends State<OTPView> {
                               }
                             : null,
                       style: TextStyle(
-                        color: _canRetry ? widget.mainColor : Colors.black26,
+                        color:
+                            _canRetry ? widget.style.mainColor : Colors.black26,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         decoration: _canRetry
@@ -258,7 +276,6 @@ class OTPViewState extends State<OTPView> {
                 fontSize: 14,
               ),
               onDone: () {
-                print('ok');
                 setState(() {
                   _canRetry = true;
                 });
@@ -268,8 +285,8 @@ class OTPViewState extends State<OTPView> {
           SizedBox(height: 20),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: widget.mainColor,
-              foregroundColor: widget.buttonTextColor,
+              backgroundColor: widget.style.mainColor,
+              foregroundColor: widget.style.buttonTextColor,
               textStyle: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -277,7 +294,7 @@ class OTPViewState extends State<OTPView> {
               fixedSize: Size.fromHeight(50),
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: widget.buttonRadius,
+                borderRadius: widget.style.buttonRadius,
               ),
             ),
             onPressed: loading ? null : verify,
