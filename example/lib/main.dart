@@ -110,15 +110,15 @@ class _MyHomePageState extends State<MyHomePage> {
             context,
             MaterialPageRoute(
               builder: (context) => MonSmsProAuth(
-                apiKey: dotenv.env['API_KEY'] ?? "",
-                senderName: dotenv.env['SENDER_NAME'] ?? "",
-                appName: dotenv.env['APP_NAME'],
-                demoOTP: dotenv.env['DEMO_OTP'],
-                demoPhoneNumber: dotenv.env['DEMO_PHONE_NUMBER'],
-                otpLength: 5,
+                apiKey: dotenv.env['MONSMSPRO_API_KEY'] ?? "",
+                senderName: dotenv.env['MONSMSPRO_SENDER_NAME'] ?? "",
+                appName: dotenv.env['MONSMSPRO_APP_NAME'],
+                demoOTP: dotenv.env['MONSMSPRO_DEMO_OTP'],
+                demoPhoneNumber: dotenv.env['MONSMSPRO_DEMO_PHONE_NUMBER'],
+                otpLength: 4,
                 style: MonSmsProAuthStyle(
                   paddingSize: 15,
-                  mainColor: Theme.of(context).primaryColor,
+                  buttonRadius: BorderRadius.zero,
                 ),
               ),
             ),

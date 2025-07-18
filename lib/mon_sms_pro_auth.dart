@@ -130,7 +130,11 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      backgroundColor: widget.style.backgroundColor,
+      appBar: AppBar(
+        backgroundColor: widget.style.backgroundColor,
+        foregroundColor: widget.style.textColor,
+      ),
       body: Padding(
         padding: EdgeInsets.only(
           left: widget.style.paddingSize,
@@ -145,14 +149,14 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w900,
-                color: Colors.black,
+                color: widget.style.textColor,
               ),
             ),
             SizedBox(height: 10),
             Text(
               "Nous vous enverrons un code à ${widget.otpLength} chiffres par SMS pour vérifier votre numéro de téléphone.",
               style: TextStyle(
-                color: Colors.black87,
+                color: widget.style.textColor.withValues(alpha: 0.8),
                 fontSize: 16,
               ),
             ),
@@ -181,10 +185,11 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 height: 1.7,
+                color: widget.style.textColor,
               ),
               isCountrySelectionEnabled: true,
               isCountryButtonPersistent: true,
-              countryButtonStyle: const CountryButtonStyle(
+              countryButtonStyle: CountryButtonStyle(
                 showDialCode: true,
                 showIsoCode: true,
                 showFlag: true,
@@ -194,6 +199,7 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   height: 1,
+                  color: widget.style.textColor,
                 ),
               ),
             ),
@@ -225,6 +231,11 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
                               useRootNavigator: true,
                               useSafeArea: true,
                               isScrollControlled: true,
+                              backgroundColor: widget.style.backgroundColor
+                                          .computeLuminance() >
+                                      0.5
+                                  ? Color.fromARGB(255, 223, 216, 216)
+                                  : Color.fromARGB(255, 58, 56, 56),
                               builder: (context) {
                                 return FractionallySizedBox(
                                   heightFactor: 0.87,
@@ -247,7 +258,15 @@ class _MonSmsProAuthState extends State<MonSmsProAuth> {
                                 widget.onCompleted!(res);
                               } else {
                                 if (context.mounted) {
-                                  Navigator.pop(context, res);
+                                  if (Navigator.canPop(context)) {
+                                    Navigator.pop(context, res);
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => res),
+                                    );
+                                  }
                                 }
                               }
                             }

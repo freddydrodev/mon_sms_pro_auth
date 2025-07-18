@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mon_sms_pro/mon_sms_pro.dart';
 import 'package:mon_sms_pro_auth/mon_sms_pro_auth_style.dart';
 import 'package:pinput/pinput.dart';
-import 'package:slide_countdown/slide_countdown.dart';
+import 'package:mon_sms_pro_auth/count_down.dart';
 
 class OTPView extends StatefulWidget {
   // final double paddingSize;
@@ -47,35 +47,25 @@ class OTPViewState extends State<OTPView> {
   final _focusNode = FocusNode();
 
   bool _canRetry = false;
+  bool _isDisposed = false;
 
-  late final StreamDuration _streamDuration;
+  final GlobalKey<CountDownState> _countDownKey = GlobalKey<CountDownState>();
 
   @override
   void initState() {
     super.initState();
-
-    _streamDuration = StreamDuration(
-      config: StreamDurationConfig(
-        countDownConfig: CountDownConfig(
-          duration: Duration(seconds: 60),
-        ),
-        onDone: () {
-          setState(() {
-            _canRetry = true;
-          });
-        },
-      ),
-    );
   }
 
   @override
   void dispose() {
-    _streamDuration.dispose();
+    if (!_isDisposed) {
+      _isDisposed = true;
+    }
     super.dispose();
   }
 
   verify() async {
-    if (_controller.text.trim().length != widget.otpLength) {
+    if (_controller.text.trim().length != widget.otpLength || _isDisposed) {
       return;
     }
 
@@ -89,9 +79,11 @@ class OTPViewState extends State<OTPView> {
       );
     } else {
       try {
-        setState(
-          () => loading = true,
-        );
+        if (!_isDisposed) {
+          setState(
+            () => loading = true,
+          );
+        }
 
         final OTPModel res = await widget.sms.otp.verify(
           VerifyOtpPayload(
@@ -101,9 +93,11 @@ class OTPViewState extends State<OTPView> {
           ),
         );
 
-        setState(
-          () => loading = false,
-        );
+        if (!_isDisposed) {
+          setState(
+            () => loading = false,
+          );
+        }
 
         if (mounted) {
           Navigator.pop(
@@ -112,9 +106,11 @@ class OTPViewState extends State<OTPView> {
           );
         }
       } catch (e) {
-        setState(() {
-          loading = false;
-        });
+        if (!_isDisposed) {
+          setState(() {
+            loading = false;
+          });
+        }
       }
     }
   }
@@ -127,6 +123,7 @@ class OTPViewState extends State<OTPView> {
       textStyle: TextStyle(
         fontSize: 26,
         fontWeight: FontWeight.bold,
+        color: widget.style.textColor,
       ),
       decoration: const BoxDecoration(),
     );
@@ -152,7 +149,7 @@ class OTPViewState extends State<OTPView> {
           width: 56,
           height: 3,
           decoration: BoxDecoration(
-            color: Colors.black12,
+            color: widget.style.textColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
         ),
@@ -170,7 +167,7 @@ class OTPViewState extends State<OTPView> {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w900,
-              color: Colors.black,
+              color: widget.style.textColor,
             ),
           ),
           SizedBox(height: 10),
@@ -180,14 +177,14 @@ class OTPViewState extends State<OTPView> {
               text:
                   "Nous avons envoyé un code à ${widget.otpLength} chiffres par SMS au",
               style: TextStyle(
-                color: Colors.black.withValues(alpha: 0.8),
+                color: widget.style.textColor.withValues(alpha: 0.8),
                 fontSize: 14,
               ),
               children: [
                 TextSpan(
                   text: " ${widget.phoneNumber}",
                   style: TextStyle(
-                    color: Colors.black,
+                    color: widget.style.textColor,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -195,7 +192,7 @@ class OTPViewState extends State<OTPView> {
                 TextSpan(
                   text: ". Veuillez le saisir ci-dessous.",
                   style: TextStyle(
-                    color: Colors.black.withValues(alpha: 0.8),
+                    color: widget.style.textColor.withValues(alpha: 0.8),
                     fontSize: 14,
                   ),
                 ),
@@ -217,70 +214,70 @@ class OTPViewState extends State<OTPView> {
           ),
           SizedBox(height: 10),
           Center(
-            child: SlideCountdown(
-              replacement: RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  text: "Vous n'avez pas reçu de code ? ",
-                  style: TextStyle(
-                    color: Colors.black87,
-                    fontSize: 14,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: "Envoyer un nouveau code.",
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = _canRetry
-                            ? () async {
-                                setState(() => loading = true);
+            child: _isDisposed
+                ? SizedBox.shrink()
+                : CountDown(
+                    key: _countDownKey,
+                    duration: Duration(minutes: 1),
+                    replacement: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        text: "Vous n'avez pas reçu de code ? ",
+                        style: TextStyle(
+                          color: widget.style.textColor.withValues(alpha: 0.8),
+                          fontSize: 14,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: "Envoyer un nouveau code.",
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = _canRetry && !_isDisposed
+                                  ? () async {
+                                      setState(() => loading = true);
 
-                                await widget.retry();
-                                setState(() => loading = false);
+                                      await widget.retry();
+                                      setState(() => loading = false);
 
-                                _streamDuration.add(
-                                  const Duration(seconds: 60),
-                                );
-
-                                _streamDuration.play();
-
-                                setState(() {
-                                  _canRetry = false;
-                                });
-                              }
-                            : null,
-                      style: TextStyle(
-                        color:
-                            _canRetry ? widget.style.mainColor : Colors.black26,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        decoration: _canRetry
-                            ? TextDecoration.underline
-                            : TextDecoration.none,
+                                      if (!_isDisposed) {
+                                        _countDownKey.currentState?.restart();
+                                        setState(() {
+                                          _canRetry = false;
+                                        });
+                                      }
+                                    }
+                                  : null,
+                            style: TextStyle(
+                              color: _canRetry
+                                  ? widget.style.mainColor
+                                  : widget.style.textColor
+                                      .withValues(alpha: 0.3),
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              decoration: _canRetry
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-              streamDuration: _streamDuration,
-              duration: Duration(minutes: 1),
-              shouldShowMinutes: (p) => true,
-              shouldShowSeconds: (p) => true,
-              decoration: const BoxDecoration(),
-              style: TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-              separatorStyle: TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
-              ),
-              onDone: () {
-                setState(() {
-                  _canRetry = true;
-                });
-              },
-            ),
+                    style: TextStyle(
+                      color: widget.style.textColor.withValues(alpha: 0.8),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    separatorStyle: TextStyle(
+                      color: widget.style.textColor.withValues(alpha: 0.8),
+                      fontSize: 14,
+                    ),
+                    onDone: () {
+                      if (!_isDisposed) {
+                        setState(() {
+                          _canRetry = true;
+                        });
+                      }
+                    },
+                  ),
           ),
           SizedBox(height: 20),
           ElevatedButton(
