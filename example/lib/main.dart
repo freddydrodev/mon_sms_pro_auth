@@ -106,21 +106,17 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final phone = await Navigator.push(
+          final phone = await showAuthScreen(
             context,
-            MaterialPageRoute(
-              builder: (context) => MonSmsProAuth(
-                apiKey: dotenv.env['MONSMSPRO_API_KEY'] ?? "",
-                senderName: dotenv.env['MONSMSPRO_SENDER_NAME'] ?? "",
-                appName: dotenv.env['MONSMSPRO_APP_NAME'],
-                demoOTP: dotenv.env['MONSMSPRO_DEMO_OTP'],
-                demoPhoneNumber: dotenv.env['MONSMSPRO_DEMO_PHONE_NUMBER'],
-                otpLength: 4,
-                style: MonSmsProAuthStyle(
-                  paddingSize: 15,
-                  buttonRadius: BorderRadius.zero,
-                ),
-              ),
+            apiKey: dotenv.env['MONSMSPRO_API_KEY'] ?? "",
+            senderName: dotenv.env['MONSMSPRO_SENDER_NAME'] ?? "",
+            appName: dotenv.env['MONSMSPRO_APP_NAME'],
+            demoOTP: dotenv.env['MONSMSPRO_DEMO_OTP'],
+            demoPhoneNumber: dotenv.env['MONSMSPRO_DEMO_PHONE_NUMBER'],
+            otpLength: 4,
+            style: MonSmsProAuthStyle(
+              paddingSize: 15,
+              buttonRadius: BorderRadius.zero,
             ),
           );
 

@@ -1,0 +1,4 @@
+enum MonSmsProAuthNavigationMode {
+  push,
+  replace,
+}

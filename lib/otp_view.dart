@@ -47,7 +47,6 @@ class OTPViewState extends State<OTPView> {
   final _focusNode = FocusNode();
 
   bool _canRetry = false;
-  bool _isDisposed = false;
 
   final GlobalKey<CountDownState> _countDownKey = GlobalKey<CountDownState>();
 
@@ -58,14 +57,11 @@ class OTPViewState extends State<OTPView> {
 
   @override
   void dispose() {
-    if (!_isDisposed) {
-      _isDisposed = true;
-    }
     super.dispose();
   }
 
   verify() async {
-    if (_controller.text.trim().length != widget.otpLength || _isDisposed) {
+    if (_controller.text.trim().length != widget.otpLength) {
       return;
     }
 
@@ -79,13 +75,7 @@ class OTPViewState extends State<OTPView> {
       );
     } else {
       try {
-        if (!_isDisposed) {
-          setState(
-            () => loading = true,
-          );
-        }
-
-        final OTPModel res = await widget.sms.otp.verify(
+        final res = await widget.sms.otp.verify(
           VerifyOtpPayload(
             phoneNumber: widget.phoneNumber,
             token: widget.token,
@@ -93,24 +83,14 @@ class OTPViewState extends State<OTPView> {
           ),
         );
 
-        if (!_isDisposed) {
-          setState(
-            () => loading = false,
-          );
-        }
-
         if (mounted) {
           Navigator.pop(
             context,
-            res.phoneNumber,
+            res.data?.phoneNumber,
           );
         }
       } catch (e) {
-        if (!_isDisposed) {
-          setState(() {
-            loading = false;
-          });
-        }
+        print(e);
       }
     }
   }
@@ -214,70 +194,63 @@ class OTPViewState extends State<OTPView> {
           ),
           SizedBox(height: 10),
           Center(
-            child: _isDisposed
-                ? SizedBox.shrink()
-                : CountDown(
-                    key: _countDownKey,
-                    duration: Duration(minutes: 1),
-                    replacement: RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                        text: "Vous n'avez pas reçu de code ? ",
-                        style: TextStyle(
-                          color: widget.style.textColor.withValues(alpha: 0.8),
-                          fontSize: 14,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: "Envoyer un nouveau code.",
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = _canRetry && !_isDisposed
-                                  ? () async {
-                                      setState(() => loading = true);
+            child: CountDown(
+              key: _countDownKey,
+              duration: Duration(minutes: 1),
+              replacement: RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  text: "Vous n'avez pas reçu de code ? ",
+                  style: TextStyle(
+                    color: widget.style.textColor.withValues(alpha: 0.8),
+                    fontSize: 14,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: "Envoyer un nouveau code.",
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = _canRetry
+                            ? () async {
+                                setState(() => loading = true);
 
-                                      await widget.retry();
-                                      setState(() => loading = false);
+                                await widget.retry();
+                                setState(() => loading = false);
 
-                                      if (!_isDisposed) {
-                                        _countDownKey.currentState?.restart();
-                                        setState(() {
-                                          _canRetry = false;
-                                        });
-                                      }
-                                    }
-                                  : null,
-                            style: TextStyle(
-                              color: _canRetry
-                                  ? widget.style.mainColor
-                                  : widget.style.textColor
-                                      .withValues(alpha: 0.3),
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              decoration: _canRetry
-                                  ? TextDecoration.underline
-                                  : TextDecoration.none,
-                            ),
-                          ),
-                        ],
+                                _countDownKey.currentState?.restart();
+                                setState(() {
+                                  _canRetry = false;
+                                });
+                              }
+                            : null,
+                      style: TextStyle(
+                        color: _canRetry
+                            ? widget.style.mainColor
+                            : widget.style.textColor.withValues(alpha: 0.3),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        decoration: _canRetry
+                            ? TextDecoration.underline
+                            : TextDecoration.none,
                       ),
                     ),
-                    style: TextStyle(
-                      color: widget.style.textColor.withValues(alpha: 0.8),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    separatorStyle: TextStyle(
-                      color: widget.style.textColor.withValues(alpha: 0.8),
-                      fontSize: 14,
-                    ),
-                    onDone: () {
-                      if (!_isDisposed) {
-                        setState(() {
-                          _canRetry = true;
-                        });
-                      }
-                    },
-                  ),
+                  ],
+                ),
+              ),
+              style: TextStyle(
+                color: widget.style.textColor.withValues(alpha: 0.8),
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+              separatorStyle: TextStyle(
+                color: widget.style.textColor.withValues(alpha: 0.8),
+                fontSize: 14,
+              ),
+              onDone: () {
+                setState(() {
+                  _canRetry = true;
+                });
+              },
+            ),
           ),
           SizedBox(height: 20),
           ElevatedButton(

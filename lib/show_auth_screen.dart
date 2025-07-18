@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mon_sms_pro_auth/mon_sms_pro_auth.dart';
-import 'package:phone_form_field/phone_form_field.dart';
+import 'utils.dart';
+import 'mon_sms_pro_auth_style.dart';
+import 'mon_sms_pro_auth_screen.dart';
 
-Future<PhoneNumber?> showAuthScreen(
+Future<String?> showAuthScreen(
   BuildContext context, {
   required String apiKey,
   required String senderName,
@@ -14,11 +15,12 @@ Future<PhoneNumber?> showAuthScreen(
   Future<bool> Function(String phoneNumber)? beforeSendOTP,
   String? onBeforeSendOTPError,
   void Function(String phoneNumber)? onCompleted,
+  MonSmsProAuthNavigationMode navigationMode = MonSmsProAuthNavigationMode.push,
 }) async {
   return await Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => MonSmsProAuth(
+      builder: (context) => MonSmsProAuthScreen(
         apiKey: apiKey,
         senderName: senderName,
         appName: appName,

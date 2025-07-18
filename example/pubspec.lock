@@ -275,11 +275,10 @@ packages:
   mon_sms_pro:
     dependency: transitive
     description:
-      name: mon_sms_pro
-      sha256: "36d7c786288a13a2e3783b7ea9d2a5d79331e28634ec9eec78e10b3a7e9477d8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.6"
+      path: "../../flutter_mon_sms_pro"
+      relative: true
+    source: path
+    version: "0.0.7"
   mon_sms_pro_auth:
     dependency: "direct main"
     description:
@@ -351,14 +350,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.0"
-  pausable_timer:
-    dependency: transitive
-    description:
-      name: pausable_timer
-      sha256: "6ef1a95441ec3439de6fb63f39a011b67e693198e7dae14e20675c3c00e86074"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.0+3"
   petitparser:
     dependency: transitive
     description:
@@ -412,14 +403,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  slide_countdown:
-    dependency: transitive
-    description:
-      name: slide_countdown
-      sha256: "363914f96389502467d4dc9c0f26e88f93df3d8e37de2d5ff05b16d981fe973d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.2"
   source_span:
     dependency: transitive
     description:
